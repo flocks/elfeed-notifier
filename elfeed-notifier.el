@@ -80,6 +80,8 @@ the alert mode-line to global-mode-string"
   (add-hook 'elfeed-search-update-hook #'elfeed-notifier--update-hook)
   (add-hook 'elfeed-untag-hooks #'elfeed-notifier--update-hook)
   (setq elfeed-notifier--timer
+		;; TODO wrap elfeed-update in a function and not call it when
+		;; *elfeed-search* buffer is displayed and focused (customize this behavior)
 		(run-at-time t elfeed-notifier-delay #'elfeed-update))
 
   (add-to-list 'global-mode-string '(:eval elfeed-notifier-alert-mode-line) t))
