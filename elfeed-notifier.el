@@ -36,6 +36,12 @@ be displayed in the mode-line."
   :type 'function
   :group 'elfeed-notifier)
 
+(defcustom elfeed-notifier-refresh-when-focus nil
+  "Whether we want to update feeds while we are currently using
+elfeed or not"
+  :type 'boolean
+  :group 'elfeed-notifier)
+
 (defface elfeed-notifier-modeline-face
   '((t :inherit font-lock-warning-face))
   "Face for showing the number in the modeline."
@@ -73,6 +79,18 @@ the number."
 	(setq elfeed-notifier-alert-mode-line
 		  (funcall elfeed-notifier-modeline-formatter count))))
 
+
+(defun elfeed-notifier-update ()
+  "Function run every `elfeed-notifier-delay' second to update
+elfeed db.
+
+When `elfeed-notifier-refresh-when-focus' is nil, do not perform
+update when *elfeed-search* buffer is focused"
+
+  (when (or elfeed-notifier-refresh-when-focus
+			(not (string= "*elfeed-search*" (buffer-name (current-buffer)))))
+	(elfeed-update)))
+
 (defun elfeed-notifier-enable ()
   "Enable the mode by adding all hooks needed, set up the timer
 function that will run every `elfeed-notifier-delay' and append
@@ -80,9 +98,7 @@ the alert mode-line to global-mode-string"
   (add-hook 'elfeed-search-update-hook #'elfeed-notifier--update-hook)
   (add-hook 'elfeed-untag-hooks #'elfeed-notifier--update-hook)
   (setq elfeed-notifier--timer
-		;; TODO wrap elfeed-update in a function and not call it when
-		;; *elfeed-search* buffer is displayed and focused (customize this behavior)
-		(run-at-time t elfeed-notifier-delay #'elfeed-update))
+		(run-at-time t elfeed-notifier-delay #'elfeed-notifier-update))
 
   (add-to-list 'global-mode-string '(:eval elfeed-notifier-alert-mode-line) t))
 
