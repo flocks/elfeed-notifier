@@ -16,7 +16,7 @@
   "Notifications for elfeed"
   :group 'convenience)
 
-(defcustom elfeed-notifier-search-notif elfeed-search-filter
+(defcustom elfeed-notifier-query elfeed-search-filter
   "Query string filtering entries that is run to compute the total
 number of notifications.
 
@@ -36,26 +36,28 @@ be displayed in the mode-line."
   :type 'function
   :group 'elfeed-notifier)
 
-(defcustom elfeed-notifier-refresh-when-focus nil
+(defcustom elfeed-notifier-refresh-when-elfeed-used-p nil
   "Whether we want to update feeds while we are currently using
 elfeed or not"
   :type 'boolean
   :group 'elfeed-notifier)
+
+;;; TODO implement a setter so we cancel previous timer when we update this value
+;;; and re-create a timer
+(defcustom elfeed-notifier-delay 300
+  "Delay between each synchronization with your feeds"
+  :group 'elfeed-notifier
+  :type 'number)
 
 (defface elfeed-notifier-modeline-face
   '((t :inherit font-lock-warning-face))
   "Face for showing the number in the modeline."
   :group 'elfeed-notifier)
 
+
 (defvar elfeed-notifier-alert-mode-line nil 
   "The mode-line indicator to display the count of elfeed entries.")
 
-;;; TODO implement a setter so we cancel previous timer when we update this value
-;;; and re-create a timer
-(defcustom elfeed-notifier-delay 60
-  "Delay between each synchronization with your feeds"
-  :group 'elfeed-notifier
-  :type 'number)
 
 (defvar elfeed-notifier--timer "store the TIMER object" nil)
 
@@ -68,9 +70,9 @@ modeline"
 (defun elfeed-notifier--update-hook (&rest _)
   "Hook that is run every time the elfeed db changes.
 
-It takes `elfeed-notifier-search-notif' filter and query the db with it to get
+It takes `elfeed-notifier-query' filter and query the db with it to get
 the number."
-  (let* ((filter (elfeed-search-parse-filter elfeed-notifier-search-notif))
+  (let* ((filter (elfeed-search-parse-filter elfeed-notifier-query))
 		 (func (byte-compile (elfeed-search-compile-filter filter)))
 		 (count 0))
 	(with-elfeed-db-visit (entry feed)
@@ -84,10 +86,10 @@ the number."
   "Function run every `elfeed-notifier-delay' second to update
 elfeed db.
 
-When `elfeed-notifier-refresh-when-focus' is nil, do not perform
+When `elfeed-notifier-refresh-when-elfeed-used-p' is nil, do not perform
 update when *elfeed-search* buffer is focused"
 
-  (when (or elfeed-notifier-refresh-when-focus
+  (when (or elfeed-notifier-refresh-when-elfeed-used-p
 			(not (string= "*elfeed-search*" (buffer-name (current-buffer)))))
 	(elfeed-update)))
 

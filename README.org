@@ -1,3 +1,44 @@
 #+TITLE: elfeed-notifier
 
 Get notified when new entries populate your elfeed db.
+
+** Overview
+
+[[ ][elfeed]] is a wonderful RSS feed reader for Emacs. To my knowledge, it
+doesn't come with a way to get notified when new entries are available
+among the feeds you are following.
+
+*elfeed-notifier* will automatically run /(elfeed-update)/ in
+the background and will populate /global-mode-string/ if new
+entries are available
+
+** Options
+
+*** elfeed-notifier-delay
+/elfeed-notifier-delay/ is the delay between each
+synchronization. The default value is every 5 minutes.
+
+*** elfeed-notifier-query
+/elfeed-notifier-query/ is the elfeed QUERY that will be used to
+check if there are new entries to read. It defaults to
+/elfeed-search-filter/ value. It's most likely what most of people
+wants, but one could prefer to have notifications only if their
+favorite feeds got updated.
+
+*** elfeed-notifier-modeline-formatter
+/elfeed-notifier-modeline-formatter/ is a function that takes the
+number of entries as input and produces the string for the modeline as
+an output. It defaults to /elfeed-notifier-default-mode-line-formatter/
+
+#+begin_src emacs-lisp
+  (defun elfeed-notifier-default-mode-line-formatter (nb)
+	"Take the number NB of entries and format the string for the
+  modeline"
+	(when (> nb 0)
+	  (propertize (format "[N:%s]" nb) 'face 'elfeed-notifier-modeline-face)))
+#+end_src
+
+*** elfeed-notifier-refresh-when-elfeed-used-p
+/elfeed-notifier-refresh-when-elfeed-used-p/ is a very long var name
+that determines if user wants elfeed-notifier to run /(elfeed-update)/
+when he/she is already using elfeed. Default to /nil/
