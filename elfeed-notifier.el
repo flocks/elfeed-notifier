@@ -65,7 +65,7 @@ elfeed or not"
   "Take the number NB of entries and format the string for the
 modeline"
   (when (> nb 0)
-	(propertize (format "[N:%s]" nb) 'face 'elfeed-notifier-modeline-face)))
+	(propertize (format "[N:%s] " nb) 'face 'elfeed-notifier-modeline-face)))
 
 (defun elfeed-notifier--update-hook (&rest _)
   "Hook that is run every time the elfeed db changes.
